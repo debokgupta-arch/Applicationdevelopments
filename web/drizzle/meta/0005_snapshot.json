@@ -1,0 +1,3350 @@
+{
+  "id": "eba95935-35f8-4f5d-9424-3db7b4220c97",
+  "prevId": "75905e24-256f-40d5-882d-11dd77d740e0",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.app_settings": {
+      "name": "app_settings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "home_id": {
+          "name": "home_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_tolerance_pct": {
+          "name": "cost_tolerance_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 10
+        },
+        "at_risk_days": {
+          "name": "at_risk_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 3
+        },
+        "area_unit": {
+          "name": "area_unit",
+          "type": "area_unit",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'sqft'"
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'INR'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "app_settings_home_id_homes_id_fk": {
+          "name": "app_settings_home_id_homes_id_fk",
+          "tableFrom": "app_settings",
+          "columnsFrom": ["home_id"],
+          "tableTo": "homes",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "app_settings_home_id_unique": {
+          "name": "app_settings_home_id_unique",
+          "columns": ["home_id"],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "app_settings_select_members": {
+          "name": "app_settings_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(\"app_settings\".\"home_id\")"
+        },
+        "app_settings_insert_editors": {
+          "name": "app_settings_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(\"app_settings\".\"home_id\")"
+        },
+        "app_settings_update_editors": {
+          "name": "app_settings_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"app_settings\".\"home_id\")",
+          "withCheck": "public.can_edit_home(\"app_settings\".\"home_id\")"
+        },
+        "app_settings_delete_editors": {
+          "name": "app_settings_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"app_settings\".\"home_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.attachments": {
+      "name": "attachments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "home_id": {
+          "name": "home_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "line_item_id": {
+          "name": "line_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stage_id": {
+          "name": "stage_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "attachment_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "attachment_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'other'"
+        },
+        "storage_path": {
+          "name": "storage_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_name": {
+          "name": "file_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "attachments_home_id_idx": {
+          "name": "attachments_home_id_idx",
+          "columns": [
+            {
+              "expression": "home_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "attachments_task_id_idx": {
+          "name": "attachments_task_id_idx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "attachments_line_item_id_idx": {
+          "name": "attachments_line_item_id_idx",
+          "columns": [
+            {
+              "expression": "line_item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "attachments_stage_id_idx": {
+          "name": "attachments_stage_id_idx",
+          "columns": [
+            {
+              "expression": "stage_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "attachments_room_id_idx": {
+          "name": "attachments_room_id_idx",
+          "columns": [
+            {
+              "expression": "room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "attachments_home_id_homes_id_fk": {
+          "name": "attachments_home_id_homes_id_fk",
+          "tableFrom": "attachments",
+          "columnsFrom": ["home_id"],
+          "tableTo": "homes",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "attachments_task_id_tasks_id_fk": {
+          "name": "attachments_task_id_tasks_id_fk",
+          "tableFrom": "attachments",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        },
+        "attachments_line_item_id_line_items_id_fk": {
+          "name": "attachments_line_item_id_line_items_id_fk",
+          "tableFrom": "attachments",
+          "columnsFrom": ["line_item_id"],
+          "tableTo": "line_items",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        },
+        "attachments_stage_id_stages_id_fk": {
+          "name": "attachments_stage_id_stages_id_fk",
+          "tableFrom": "attachments",
+          "columnsFrom": ["stage_id"],
+          "tableTo": "stages",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        },
+        "attachments_room_id_rooms_id_fk": {
+          "name": "attachments_room_id_rooms_id_fk",
+          "tableFrom": "attachments",
+          "columnsFrom": ["room_id"],
+          "tableTo": "rooms",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "attachments_select_members": {
+          "name": "attachments_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(\"attachments\".\"home_id\")"
+        },
+        "attachments_insert_editors": {
+          "name": "attachments_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(\"attachments\".\"home_id\")"
+        },
+        "attachments_update_editors": {
+          "name": "attachments_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"attachments\".\"home_id\")",
+          "withCheck": "public.can_edit_home(\"attachments\".\"home_id\")"
+        },
+        "attachments_delete_editors": {
+          "name": "attachments_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"attachments\".\"home_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.floors": {
+      "name": "floors",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "home_id": {
+          "name": "home_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "plan_storage_path": {
+          "name": "plan_storage_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_area_sqft": {
+          "name": "total_area_sqft",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "floors_home_id_idx": {
+          "name": "floors_home_id_idx",
+          "columns": [
+            {
+              "expression": "home_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "floors_home_id_homes_id_fk": {
+          "name": "floors_home_id_homes_id_fk",
+          "tableFrom": "floors",
+          "columnsFrom": ["home_id"],
+          "tableTo": "homes",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "floors_select_members": {
+          "name": "floors_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(\"floors\".\"home_id\")"
+        },
+        "floors_insert_editors": {
+          "name": "floors_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(\"floors\".\"home_id\")"
+        },
+        "floors_update_editors": {
+          "name": "floors_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"floors\".\"home_id\")",
+          "withCheck": "public.can_edit_home(\"floors\".\"home_id\")"
+        },
+        "floors_delete_editors": {
+          "name": "floors_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"floors\".\"home_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.home_members": {
+      "name": "home_members",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "home_id": {
+          "name": "home_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "member_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "home_members_home_user_uidx": {
+          "name": "home_members_home_user_uidx",
+          "columns": [
+            {
+              "expression": "home_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "home_members_user_id_idx": {
+          "name": "home_members_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "home_members_home_id_homes_id_fk": {
+          "name": "home_members_home_id_homes_id_fk",
+          "tableFrom": "home_members",
+          "columnsFrom": ["home_id"],
+          "tableTo": "homes",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "home_members_user_id_users_id_fk": {
+          "name": "home_members_user_id_users_id_fk",
+          "tableFrom": "home_members",
+          "columnsFrom": ["user_id"],
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "home_members_select_members": {
+          "name": "home_members_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(\"home_members\".\"home_id\")"
+        },
+        "home_members_insert_owner": {
+          "name": "home_members_insert_owner",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.is_home_owner(\"home_members\".\"home_id\")"
+        },
+        "home_members_update_owner": {
+          "name": "home_members_update_owner",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.is_home_owner(\"home_members\".\"home_id\")",
+          "withCheck": "public.is_home_owner(\"home_members\".\"home_id\")"
+        },
+        "home_members_delete_owner": {
+          "name": "home_members_delete_owner",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.is_home_owner(\"home_members\".\"home_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.homes": {
+      "name": "homes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "building_name": {
+          "name": "building_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "floor_label": {
+          "name": "floor_label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bhk": {
+          "name": "bhk",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "possession_date": {
+          "name": "possession_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "move_in_date": {
+          "name": "move_in_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_budget": {
+          "name": "total_budget",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'INR'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "homes_owner_id_idx": {
+          "name": "homes_owner_id_idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "homes_owner_id_users_id_fk": {
+          "name": "homes_owner_id_users_id_fk",
+          "tableFrom": "homes",
+          "columnsFrom": ["owner_id"],
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "homes_select_members": {
+          "name": "homes_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "\"homes\".\"owner_id\" = (select auth.uid()) or public.is_home_member(\"homes\".\"id\")"
+        },
+        "homes_insert_self_owner": {
+          "name": "homes_insert_self_owner",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "\"homes\".\"owner_id\" = (select auth.uid())"
+        },
+        "homes_update_editors": {
+          "name": "homes_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"homes\".\"id\")",
+          "withCheck": "public.can_edit_home(\"homes\".\"id\")"
+        },
+        "homes_delete_owner": {
+          "name": "homes_delete_owner",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "\"homes\".\"owner_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.line_item_materials": {
+      "name": "line_item_materials",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "line_item_id": {
+          "name": "line_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "material": {
+          "name": "material",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "line_item_materials_line_item_id_idx": {
+          "name": "line_item_materials_line_item_id_idx",
+          "columns": [
+            {
+              "expression": "line_item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "line_item_materials_line_item_id_line_items_id_fk": {
+          "name": "line_item_materials_line_item_id_line_items_id_fk",
+          "tableFrom": "line_item_materials",
+          "columnsFrom": ["line_item_id"],
+          "tableTo": "line_items",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "line_item_materials_select_members": {
+          "name": "line_item_materials_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.line_item_home_id(\"line_item_materials\".\"line_item_id\"))"
+        },
+        "line_item_materials_insert_editors": {
+          "name": "line_item_materials_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.line_item_home_id(\"line_item_materials\".\"line_item_id\"))"
+        },
+        "line_item_materials_update_editors": {
+          "name": "line_item_materials_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.line_item_home_id(\"line_item_materials\".\"line_item_id\"))",
+          "withCheck": "public.can_edit_home(public.line_item_home_id(\"line_item_materials\".\"line_item_id\"))"
+        },
+        "line_item_materials_delete_editors": {
+          "name": "line_item_materials_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.line_item_home_id(\"line_item_materials\".\"line_item_id\"))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.line_items": {
+      "name": "line_items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "floor_id": {
+          "name": "floor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expected_cost": {
+          "name": "expected_cost",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_cost": {
+          "name": "actual_cost",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "planned_start": {
+          "name": "planned_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "planned_end": {
+          "name": "planned_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_start": {
+          "name": "actual_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_end": {
+          "name": "actual_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "line_items_task_id_idx": {
+          "name": "line_items_task_id_idx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "line_items_floor_id_idx": {
+          "name": "line_items_floor_id_idx",
+          "columns": [
+            {
+              "expression": "floor_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "line_items_room_id_idx": {
+          "name": "line_items_room_id_idx",
+          "columns": [
+            {
+              "expression": "room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "line_items_planned_end_idx": {
+          "name": "line_items_planned_end_idx",
+          "columns": [
+            {
+              "expression": "planned_end",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "line_items_task_id_tasks_id_fk": {
+          "name": "line_items_task_id_tasks_id_fk",
+          "tableFrom": "line_items",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "line_items_floor_id_floors_id_fk": {
+          "name": "line_items_floor_id_floors_id_fk",
+          "tableFrom": "line_items",
+          "columnsFrom": ["floor_id"],
+          "tableTo": "floors",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        },
+        "line_items_room_id_rooms_id_fk": {
+          "name": "line_items_room_id_rooms_id_fk",
+          "tableFrom": "line_items",
+          "columnsFrom": ["room_id"],
+          "tableTo": "rooms",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "line_items_select_members": {
+          "name": "line_items_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.task_home_id(\"line_items\".\"task_id\"))"
+        },
+        "line_items_insert_editors": {
+          "name": "line_items_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.task_home_id(\"line_items\".\"task_id\"))"
+        },
+        "line_items_update_editors": {
+          "name": "line_items_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"line_items\".\"task_id\"))",
+          "withCheck": "public.can_edit_home(public.task_home_id(\"line_items\".\"task_id\"))"
+        },
+        "line_items_delete_editors": {
+          "name": "line_items_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"line_items\".\"task_id\"))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.modules": {
+      "name": "modules",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "home_id": {
+          "name": "home_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ListChecks'"
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_custom": {
+          "name": "is_custom",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_hidden": {
+          "name": "is_hidden",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "budget": {
+          "name": "budget",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "modules_home_id_idx": {
+          "name": "modules_home_id_idx",
+          "columns": [
+            {
+              "expression": "home_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "modules_home_id_homes_id_fk": {
+          "name": "modules_home_id_homes_id_fk",
+          "tableFrom": "modules",
+          "columnsFrom": ["home_id"],
+          "tableTo": "homes",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "modules_select_members": {
+          "name": "modules_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(\"modules\".\"home_id\")"
+        },
+        "modules_insert_editors": {
+          "name": "modules_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(\"modules\".\"home_id\")"
+        },
+        "modules_update_editors": {
+          "name": "modules_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"modules\".\"home_id\")",
+          "withCheck": "public.can_edit_home(\"modules\".\"home_id\")"
+        },
+        "modules_delete_editors": {
+          "name": "modules_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"modules\".\"home_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.payments": {
+      "name": "payments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payee": {
+          "name": "payee",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "paid_on": {
+          "name": "paid_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mode": {
+          "name": "mode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "payment_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'due'"
+        },
+        "receipt_path": {
+          "name": "receipt_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "payments_task_id_idx": {
+          "name": "payments_task_id_idx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "payments_paid_on_idx": {
+          "name": "payments_paid_on_idx",
+          "columns": [
+            {
+              "expression": "paid_on",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "payments_task_id_tasks_id_fk": {
+          "name": "payments_task_id_tasks_id_fk",
+          "tableFrom": "payments",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "payments_select_members": {
+          "name": "payments_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.task_home_id(\"payments\".\"task_id\"))"
+        },
+        "payments_insert_editors": {
+          "name": "payments_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.task_home_id(\"payments\".\"task_id\"))"
+        },
+        "payments_update_editors": {
+          "name": "payments_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"payments\".\"task_id\"))",
+          "withCheck": "public.can_edit_home(public.task_home_id(\"payments\".\"task_id\"))"
+        },
+        "payments_delete_editors": {
+          "name": "payments_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"payments\".\"task_id\"))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.profiles": {
+      "name": "profiles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "citext",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mobile": {
+          "name": "mobile",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "citext",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profiles_user_id_users_id_fk": {
+          "name": "profiles_user_id_users_id_fk",
+          "tableFrom": "profiles",
+          "columnsFrom": ["user_id"],
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "profiles_user_id_unique": {
+          "name": "profiles_user_id_unique",
+          "columns": ["user_id"],
+          "nullsNotDistinct": false
+        },
+        "profiles_username_unique": {
+          "name": "profiles_username_unique",
+          "columns": ["username"],
+          "nullsNotDistinct": false
+        },
+        "profiles_mobile_unique": {
+          "name": "profiles_mobile_unique",
+          "columns": ["mobile"],
+          "nullsNotDistinct": false
+        },
+        "profiles_email_unique": {
+          "name": "profiles_email_unique",
+          "columns": ["email"],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "profiles_select_own": {
+          "name": "profiles_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "\"profiles\".\"user_id\" = (select auth.uid())"
+        },
+        "profiles_insert_own": {
+          "name": "profiles_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "\"profiles\".\"user_id\" = (select auth.uid())"
+        },
+        "profiles_update_own": {
+          "name": "profiles_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "\"profiles\".\"user_id\" = (select auth.uid())",
+          "withCheck": "\"profiles\".\"user_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.quotes": {
+      "name": "quotes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vendor_id": {
+          "name": "vendor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duration_days": {
+          "name": "duration_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "includes": {
+          "name": "includes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_accepted": {
+          "name": "is_accepted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "quotes_task_id_idx": {
+          "name": "quotes_task_id_idx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "quotes_vendor_id_idx": {
+          "name": "quotes_vendor_id_idx",
+          "columns": [
+            {
+              "expression": "vendor_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "quotes_task_id_tasks_id_fk": {
+          "name": "quotes_task_id_tasks_id_fk",
+          "tableFrom": "quotes",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "quotes_vendor_id_vendors_id_fk": {
+          "name": "quotes_vendor_id_vendors_id_fk",
+          "tableFrom": "quotes",
+          "columnsFrom": ["vendor_id"],
+          "tableTo": "vendors",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "quotes_select_members": {
+          "name": "quotes_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.task_home_id(\"quotes\".\"task_id\"))"
+        },
+        "quotes_insert_editors": {
+          "name": "quotes_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.task_home_id(\"quotes\".\"task_id\"))"
+        },
+        "quotes_update_editors": {
+          "name": "quotes_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"quotes\".\"task_id\"))",
+          "withCheck": "public.can_edit_home(public.task_home_id(\"quotes\".\"task_id\"))"
+        },
+        "quotes_delete_editors": {
+          "name": "quotes_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"quotes\".\"task_id\"))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.rooms": {
+      "name": "rooms",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "home_id": {
+          "name": "home_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "floor_id": {
+          "name": "floor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "length_ft": {
+          "name": "length_ft",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "width_ft": {
+          "name": "width_ft",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "area_sqft": {
+          "name": "area_sqft",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plan_x": {
+          "name": "plan_x",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plan_y": {
+          "name": "plan_y",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plan_w": {
+          "name": "plan_w",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plan_h": {
+          "name": "plan_h",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wall_color_hex": {
+          "name": "wall_color_hex",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wall_color_name": {
+          "name": "wall_color_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "finish": {
+          "name": "finish",
+          "type": "paint_finish",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ceiling_color_hex": {
+          "name": "ceiling_color_hex",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "rooms_home_id_idx": {
+          "name": "rooms_home_id_idx",
+          "columns": [
+            {
+              "expression": "home_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "rooms_floor_id_idx": {
+          "name": "rooms_floor_id_idx",
+          "columns": [
+            {
+              "expression": "floor_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "rooms_home_id_homes_id_fk": {
+          "name": "rooms_home_id_homes_id_fk",
+          "tableFrom": "rooms",
+          "columnsFrom": ["home_id"],
+          "tableTo": "homes",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "rooms_floor_id_floors_id_fk": {
+          "name": "rooms_floor_id_floors_id_fk",
+          "tableFrom": "rooms",
+          "columnsFrom": ["floor_id"],
+          "tableTo": "floors",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "rooms_select_members": {
+          "name": "rooms_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(\"rooms\".\"home_id\")"
+        },
+        "rooms_insert_editors": {
+          "name": "rooms_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(\"rooms\".\"home_id\")"
+        },
+        "rooms_update_editors": {
+          "name": "rooms_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"rooms\".\"home_id\")",
+          "withCheck": "public.can_edit_home(\"rooms\".\"home_id\")"
+        },
+        "rooms_delete_editors": {
+          "name": "rooms_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"rooms\".\"home_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.space_progress": {
+      "name": "space_progress",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "percent": {
+          "name": "percent",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "photo_path": {
+          "name": "photo_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "space_progress_task_room_uidx": {
+          "name": "space_progress_task_room_uidx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "space_progress_room_id_idx": {
+          "name": "space_progress_room_id_idx",
+          "columns": [
+            {
+              "expression": "room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "space_progress_task_id_tasks_id_fk": {
+          "name": "space_progress_task_id_tasks_id_fk",
+          "tableFrom": "space_progress",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "space_progress_room_id_rooms_id_fk": {
+          "name": "space_progress_room_id_rooms_id_fk",
+          "tableFrom": "space_progress",
+          "columnsFrom": ["room_id"],
+          "tableTo": "rooms",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "space_progress_select_members": {
+          "name": "space_progress_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.task_home_id(\"space_progress\".\"task_id\"))"
+        },
+        "space_progress_insert_editors": {
+          "name": "space_progress_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.task_home_id(\"space_progress\".\"task_id\"))"
+        },
+        "space_progress_update_editors": {
+          "name": "space_progress_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"space_progress\".\"task_id\"))",
+          "withCheck": "public.can_edit_home(public.task_home_id(\"space_progress\".\"task_id\"))"
+        },
+        "space_progress_delete_editors": {
+          "name": "space_progress_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"space_progress\".\"task_id\"))"
+        }
+      },
+      "checkConstraints": {
+        "space_progress_percent_range": {
+          "name": "space_progress_percent_range",
+          "value": "\"space_progress\".\"percent\" between 0 and 100"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "public.stages": {
+      "name": "stages",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "line_item_id": {
+          "name": "line_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "status": {
+          "name": "status",
+          "type": "task_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "planned_start": {
+          "name": "planned_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "planned_end": {
+          "name": "planned_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_start": {
+          "name": "actual_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_end": {
+          "name": "actual_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "stages_task_id_idx": {
+          "name": "stages_task_id_idx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "stages_line_item_id_idx": {
+          "name": "stages_line_item_id_idx",
+          "columns": [
+            {
+              "expression": "line_item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "stages_planned_end_idx": {
+          "name": "stages_planned_end_idx",
+          "columns": [
+            {
+              "expression": "planned_end",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "stages_task_id_tasks_id_fk": {
+          "name": "stages_task_id_tasks_id_fk",
+          "tableFrom": "stages",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "stages_line_item_id_line_items_id_fk": {
+          "name": "stages_line_item_id_line_items_id_fk",
+          "tableFrom": "stages",
+          "columnsFrom": ["line_item_id"],
+          "tableTo": "line_items",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "stages_select_members": {
+          "name": "stages_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(coalesce(public.task_home_id(\"stages\".\"task_id\"), public.line_item_home_id(\"stages\".\"line_item_id\")))"
+        },
+        "stages_insert_editors": {
+          "name": "stages_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(coalesce(public.task_home_id(\"stages\".\"task_id\"), public.line_item_home_id(\"stages\".\"line_item_id\")))"
+        },
+        "stages_update_editors": {
+          "name": "stages_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(coalesce(public.task_home_id(\"stages\".\"task_id\"), public.line_item_home_id(\"stages\".\"line_item_id\")))",
+          "withCheck": "public.can_edit_home(coalesce(public.task_home_id(\"stages\".\"task_id\"), public.line_item_home_id(\"stages\".\"line_item_id\")))"
+        },
+        "stages_delete_editors": {
+          "name": "stages_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(coalesce(public.task_home_id(\"stages\".\"task_id\"), public.line_item_home_id(\"stages\".\"line_item_id\")))"
+        }
+      },
+      "checkConstraints": {
+        "stages_one_parent": {
+          "name": "stages_one_parent",
+          "value": "(\"stages\".\"task_id\" is null) <> (\"stages\".\"line_item_id\" is null)"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "public.task_contacts": {
+      "name": "task_contacts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "company": {
+          "name": "company",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rate": {
+          "name": "rate",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_appointed": {
+          "name": "is_appointed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "appointed_on": {
+          "name": "appointed_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "task_contacts_task_id_idx": {
+          "name": "task_contacts_task_id_idx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "task_contacts_task_id_tasks_id_fk": {
+          "name": "task_contacts_task_id_tasks_id_fk",
+          "tableFrom": "task_contacts",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "task_contacts_select_members": {
+          "name": "task_contacts_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.task_home_id(\"task_contacts\".\"task_id\"))"
+        },
+        "task_contacts_insert_editors": {
+          "name": "task_contacts_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.task_home_id(\"task_contacts\".\"task_id\"))"
+        },
+        "task_contacts_update_editors": {
+          "name": "task_contacts_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"task_contacts\".\"task_id\"))",
+          "withCheck": "public.can_edit_home(public.task_home_id(\"task_contacts\".\"task_id\"))"
+        },
+        "task_contacts_delete_editors": {
+          "name": "task_contacts_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"task_contacts\".\"task_id\"))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.task_rooms": {
+      "name": "task_rooms",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "task_rooms_task_room_uidx": {
+          "name": "task_rooms_task_room_uidx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "task_rooms_room_id_idx": {
+          "name": "task_rooms_room_id_idx",
+          "columns": [
+            {
+              "expression": "room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "task_rooms_task_id_tasks_id_fk": {
+          "name": "task_rooms_task_id_tasks_id_fk",
+          "tableFrom": "task_rooms",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "task_rooms_room_id_rooms_id_fk": {
+          "name": "task_rooms_room_id_rooms_id_fk",
+          "tableFrom": "task_rooms",
+          "columnsFrom": ["room_id"],
+          "tableTo": "rooms",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "task_rooms_select_members": {
+          "name": "task_rooms_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.task_home_id(\"task_rooms\".\"task_id\"))"
+        },
+        "task_rooms_insert_editors": {
+          "name": "task_rooms_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.task_home_id(\"task_rooms\".\"task_id\"))"
+        },
+        "task_rooms_update_editors": {
+          "name": "task_rooms_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"task_rooms\".\"task_id\"))",
+          "withCheck": "public.can_edit_home(public.task_home_id(\"task_rooms\".\"task_id\"))"
+        },
+        "task_rooms_delete_editors": {
+          "name": "task_rooms_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"task_rooms\".\"task_id\"))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.task_selections": {
+      "name": "task_selections",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "item_name": {
+          "name": "item_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "color_hex": {
+          "name": "color_hex",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "color_name": {
+          "name": "color_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "finish": {
+          "name": "finish",
+          "type": "paint_finish",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "brand": {
+          "name": "brand",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expected_cost": {
+          "name": "expected_cost",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "task_selections_task_id_idx": {
+          "name": "task_selections_task_id_idx",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "task_selections_room_id_idx": {
+          "name": "task_selections_room_id_idx",
+          "columns": [
+            {
+              "expression": "room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "task_selections_task_id_tasks_id_fk": {
+          "name": "task_selections_task_id_tasks_id_fk",
+          "tableFrom": "task_selections",
+          "columnsFrom": ["task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "task_selections_room_id_rooms_id_fk": {
+          "name": "task_selections_room_id_rooms_id_fk",
+          "tableFrom": "task_selections",
+          "columnsFrom": ["room_id"],
+          "tableTo": "rooms",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "task_selections_select_members": {
+          "name": "task_selections_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.task_home_id(\"task_selections\".\"task_id\"))"
+        },
+        "task_selections_insert_editors": {
+          "name": "task_selections_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.task_home_id(\"task_selections\".\"task_id\"))"
+        },
+        "task_selections_update_editors": {
+          "name": "task_selections_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"task_selections\".\"task_id\"))",
+          "withCheck": "public.can_edit_home(public.task_home_id(\"task_selections\".\"task_id\"))"
+        },
+        "task_selections_delete_editors": {
+          "name": "task_selections_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.task_home_id(\"task_selections\".\"task_id\"))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.tasks": {
+      "name": "tasks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "module_id": {
+          "name": "module_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_task_id": {
+          "name": "parent_task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "level": {
+          "name": "level",
+          "type": "task_level",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'task'"
+        },
+        "task_type": {
+          "name": "task_type",
+          "type": "task_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'plain'"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "task_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "planned_start": {
+          "name": "planned_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "planned_end": {
+          "name": "planned_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_start": {
+          "name": "actual_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_end": {
+          "name": "actual_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expected_cost": {
+          "name": "expected_cost",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_cost": {
+          "name": "actual_cost",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "manual_progress": {
+          "name": "manual_progress",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "priority": {
+          "name": "priority",
+          "type": "task_priority",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'medium'"
+        },
+        "vendor_id": {
+          "name": "vendor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_custom": {
+          "name": "is_custom",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_hidden": {
+          "name": "is_hidden",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "due_date": {
+          "name": "due_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cost_estimate": {
+          "name": "cost_estimate",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cost_actual": {
+          "name": "cost_actual",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "tasks_module_id_idx": {
+          "name": "tasks_module_id_idx",
+          "columns": [
+            {
+              "expression": "module_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "tasks_parent_task_id_idx": {
+          "name": "tasks_parent_task_id_idx",
+          "columns": [
+            {
+              "expression": "parent_task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "tasks_vendor_id_idx": {
+          "name": "tasks_vendor_id_idx",
+          "columns": [
+            {
+              "expression": "vendor_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "tasks_due_date_idx": {
+          "name": "tasks_due_date_idx",
+          "columns": [
+            {
+              "expression": "due_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "tasks_planned_start_idx": {
+          "name": "tasks_planned_start_idx",
+          "columns": [
+            {
+              "expression": "planned_start",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "tasks_planned_end_idx": {
+          "name": "tasks_planned_end_idx",
+          "columns": [
+            {
+              "expression": "planned_end",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "tasks_module_id_modules_id_fk": {
+          "name": "tasks_module_id_modules_id_fk",
+          "tableFrom": "tasks",
+          "columnsFrom": ["module_id"],
+          "tableTo": "modules",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "tasks_parent_task_id_tasks_id_fk": {
+          "name": "tasks_parent_task_id_tasks_id_fk",
+          "tableFrom": "tasks",
+          "columnsFrom": ["parent_task_id"],
+          "tableTo": "tasks",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "tasks_vendor_id_vendors_id_fk": {
+          "name": "tasks_vendor_id_vendors_id_fk",
+          "tableFrom": "tasks",
+          "columnsFrom": ["vendor_id"],
+          "tableTo": "vendors",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "tasks_select_members": {
+          "name": "tasks_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(public.module_home_id(\"tasks\".\"module_id\"))"
+        },
+        "tasks_insert_editors": {
+          "name": "tasks_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(public.module_home_id(\"tasks\".\"module_id\"))"
+        },
+        "tasks_update_editors": {
+          "name": "tasks_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.module_home_id(\"tasks\".\"module_id\"))",
+          "withCheck": "public.can_edit_home(public.module_home_id(\"tasks\".\"module_id\"))"
+        },
+        "tasks_delete_editors": {
+          "name": "tasks_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(public.module_home_id(\"tasks\".\"module_id\"))"
+        }
+      },
+      "checkConstraints": {
+        "tasks_manual_progress_range": {
+          "name": "tasks_manual_progress_range",
+          "value": "\"tasks\".\"manual_progress\" is null or \"tasks\".\"manual_progress\" between 0 and 100"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "public.templates": {
+      "name": "templates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "templates_owner_id_idx": {
+          "name": "templates_owner_id_idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "templates_owner_id_users_id_fk": {
+          "name": "templates_owner_id_users_id_fk",
+          "tableFrom": "templates",
+          "columnsFrom": ["owner_id"],
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "templates_all_own": {
+          "name": "templates_all_own",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": ["authenticated"],
+          "using": "\"templates\".\"owner_id\" = (select auth.uid())",
+          "withCheck": "\"templates\".\"owner_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.vendors": {
+      "name": "vendors",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "home_id": {
+          "name": "home_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "trade": {
+          "name": "trade",
+          "type": "vendor_trade",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rating": {
+          "name": "rating",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "vendor_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'contacted'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "vendors_home_id_idx": {
+          "name": "vendors_home_id_idx",
+          "columns": [
+            {
+              "expression": "home_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "vendors_home_id_homes_id_fk": {
+          "name": "vendors_home_id_homes_id_fk",
+          "tableFrom": "vendors",
+          "columnsFrom": ["home_id"],
+          "tableTo": "homes",
+          "columnsTo": ["id"],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "vendors_select_members": {
+          "name": "vendors_select_members",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": ["authenticated"],
+          "using": "public.is_home_member(\"vendors\".\"home_id\")"
+        },
+        "vendors_insert_editors": {
+          "name": "vendors_insert_editors",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": ["authenticated"],
+          "withCheck": "public.can_edit_home(\"vendors\".\"home_id\")"
+        },
+        "vendors_update_editors": {
+          "name": "vendors_update_editors",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"vendors\".\"home_id\")",
+          "withCheck": "public.can_edit_home(\"vendors\".\"home_id\")"
+        },
+        "vendors_delete_editors": {
+          "name": "vendors_delete_editors",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": ["authenticated"],
+          "using": "public.can_edit_home(\"vendors\".\"home_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {
+    "public.area_unit": {
+      "name": "area_unit",
+      "schema": "public",
+      "values": ["sqft", "sqm"]
+    },
+    "public.attachment_kind": {
+      "name": "attachment_kind",
+      "schema": "public",
+      "values": [
+        "design",
+        "invoice",
+        "warranty",
+        "installation",
+        "plan",
+        "photo",
+        "receipt",
+        "other"
+      ]
+    },
+    "public.attachment_type": {
+      "name": "attachment_type",
+      "schema": "public",
+      "values": ["image", "pdf", "document"]
+    },
+    "public.member_role": {
+      "name": "member_role",
+      "schema": "public",
+      "values": ["owner", "editor", "viewer"]
+    },
+    "public.paint_finish": {
+      "name": "paint_finish",
+      "schema": "public",
+      "values": ["matte", "satin", "gloss"]
+    },
+    "public.payment_status": {
+      "name": "payment_status",
+      "schema": "public",
+      "values": ["due", "paid"]
+    },
+    "public.task_level": {
+      "name": "task_level",
+      "schema": "public",
+      "values": ["task", "subtask"]
+    },
+    "public.task_priority": {
+      "name": "task_priority",
+      "schema": "public",
+      "values": ["low", "medium", "high"]
+    },
+    "public.task_status": {
+      "name": "task_status",
+      "schema": "public",
+      "values": ["pending", "in_progress", "done", "skipped", "blocked"]
+    },
+    "public.task_type": {
+      "name": "task_type",
+      "schema": "public",
+      "values": [
+        "plain",
+        "selection",
+        "contact",
+        "cost_monitor",
+        "schedule",
+        "space_progress",
+        "line_items",
+        "stages"
+      ]
+    },
+    "public.vendor_status": {
+      "name": "vendor_status",
+      "schema": "public",
+      "values": ["contacted", "quote_received", "appointed"]
+    },
+    "public.vendor_trade": {
+      "name": "vendor_trade",
+      "schema": "public",
+      "values": ["painter", "carpenter", "electrician", "plumber", "mover", "other"]
+    }
+  },
+  "schemas": {},
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

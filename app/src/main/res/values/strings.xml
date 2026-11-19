@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HomeShift</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_plan">Plan</string>
+    <string name="nav_vendors">Vendors</string>
+
+    <!-- Common actions / content descriptions -->
+    <string name="cd_back">Back</string>
+    <string name="cd_notifications">Notifications</string>
+    <string name="cd_add_item">Add item</string>
+
+    <!-- Home -->
+    <string name="home_greeting">Hello</string>
+    <string name="home_title">Your move</string>
+    <string name="home_placeholder">Your move progress, upcoming tasks and modules will appear here.</string>
+    <string name="home_open_sample_module">Open a sample module</string>
+
+    <!-- Tasks -->
+    <string name="tasks_title">Tasks</string>
+    <string name="tasks_placeholder">All your tasks across modules will appear here.</string>
+
+    <!-- Plan -->
+    <string name="plan_title">Floor plan and colours</string>
+    <string name="plan_placeholder">Upload a floor plan, tag rooms and pick wall colours here.</string>
+
+    <!-- Vendors -->
+    <string name="vendors_title">Vendors</string>
+    <string name="vendors_placeholder">Painters, carpenters, electricians, plumbers and movers will appear here.</string>
+
+    <!-- Module detail -->
+    <string name="module_title">Module</string>
+    <string name="module_placeholder">Task groups and sub-tasks for module %1$d will appear here.</string>
+</resources>
