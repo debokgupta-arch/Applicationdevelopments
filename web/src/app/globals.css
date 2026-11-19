@@ -1,0 +1,119 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Maps CSS variables to Tailwind utilities (bg-primary-tint, text-warning, ...). */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* GrihaPravesh design-system roles (spec section 3) */
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-tint: var(--primary-tint);
+  --color-surface: var(--card);
+  --color-due-soon: var(--due-soon);
+  --color-due-soon-foreground: var(--due-soon-foreground);
+  --color-custom-tag: var(--custom-tag);
+  --color-custom-tag-foreground: var(--custom-tag-foreground);
+  --color-progress-pending: var(--progress-pending);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Shape and type scale (spec section 3): rounded-card, text-page-title, ... */
+@theme {
+  --radius-input: 0.75rem;
+  --radius-card: 1rem;
+  --radius-hero: 1.25rem;
+  --radius-dialog: 1.5rem;
+
+  --text-page-title: 1.875rem;
+  --text-page-title--line-height: 2.25rem;
+  --text-section: 1.125rem;
+  --text-section--line-height: 1.5rem;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.25rem;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1rem;
+}
+
+/* Brand palette: the only place raw colour values live. Light theme only. */
+:root {
+  --background: #f4f6f5;
+  --foreground: #16222b;
+  --card: #ffffff;
+  --card-foreground: #16222b;
+  --popover: #ffffff;
+  --popover-foreground: #16222b;
+
+  --primary: #0e6b62;
+  --primary-foreground: #ffffff;
+  --primary-dark: #0a4f48;
+  --primary-tint: #ddeeea;
+
+  --secondary: #ddeeea;
+  --secondary-foreground: #0a4f48;
+  --accent: #ddeeea;
+  --accent-foreground: #0a4f48;
+  --muted: #eef2f0;
+  --muted-foreground: #566370;
+
+  --border: #e1e7e5;
+  --input: #d3dbd8;
+  --ring: #0e6b62;
+
+  --due-soon: #fcefd6;
+  --due-soon-foreground: #7a4200;
+  --custom-tag: #e8e6fa;
+  --custom-tag-foreground: #4b3fb0;
+  --progress-pending: #9cc9c2;
+  --warning: #c77a12;
+  --danger: #9a2c2c;
+  --destructive: #9a2c2c;
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-body text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}
